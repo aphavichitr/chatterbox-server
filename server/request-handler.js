@@ -78,15 +78,13 @@ var requestHandler = function(request, response) {
       responses();
     } else {
       statusCode = 201;
-      console.log(request);
       // if there's a get request, will it go through here?
       // for post requests, why will on('data') return undefined even if there's data
       request.on('data', function(data) {
-        console.log('data', data);
         body.push(data);
-      }).on('end', function() {
+      });
+      request.on('end', function() {
         body = body.join('').toString();
-        console.log('body', body);
         responses();
       });
     }
