@@ -46,7 +46,7 @@ var requestHandler = function(request, response) {
     //
     // You will need to change this if you are sending something
     // other than plain text, like JSON or HTML.
-    headers['Content-Type'] = 'text/plain';
+    headers['Content-Type'] = 'application/json';
 
     // .writeHead() writes to the request line and headers of the response,
     // which includes the status and all headers.
@@ -62,7 +62,6 @@ var requestHandler = function(request, response) {
       body: body,
       results: results
     };
-
     // Make sure to always call response.end() - Node may not send
     // anything back to the client until you do. The string you pass to
     // response.end() will be the body of the response - i.e. what shows
@@ -74,7 +73,9 @@ var requestHandler = function(request, response) {
   };
 
   if (url === '/classes/messages' || url === '/classes/messages?order=-createdAt') {
-    if (method === 'GET') {
+    if (method === 'OPTIONS') {
+      responses();
+    } else if (method === 'GET') {
       responses();
     } else {
       statusCode = 201;

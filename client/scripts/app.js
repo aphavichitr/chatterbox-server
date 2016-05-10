@@ -36,7 +36,6 @@ var app = {
     app.startSpinner();
     // Clear messages input
     app.$message.val('');
-
     // POST the message to the server
     $.ajax({
       url: app.server,
@@ -58,15 +57,16 @@ var app = {
       url: app.server,
       type: 'GET',
       contentType: 'application/json',
-      data: { order: '-createdAt'},
+      // data: { order: '-createdAt'},
       success: function(data) {
+        app.stopSpinner();
         // Don't bother if we have nothing to work with
         if (!data.results || !data.results.length) { return; }
 
         // Get the last message
         var mostRecentMessage = data.results[data.results.length - 1];
+        mostRecentMessage.objectId = data.results.length - 1;
         var displayedRoom = $('.chat span').first().data('roomname');
-        app.stopSpinner();
         // Only bother updating the DOM if we have a new message
         if (mostRecentMessage.objectId !== app.lastMessageId || app.roomname !== displayedRoom) {
           // Update the UI with the fetched rooms
@@ -96,7 +96,7 @@ var app = {
     app.stopSpinner();
     if (Array.isArray(results)) {
       // Add all fetched messages
-      results.forEach(app.addMessage);
+      results.reverse().forEach(app.addMessage);
     }
 
     // Make it scroll to the bottom
@@ -111,7 +111,7 @@ var app = {
   },
 
   populateRooms: function(results) {
-    app.$roomSelect.html('<option value="__newRoom">New room...</option><option value="" selected>Lobby</option></select>');
+    app.$roomSelect.html('<option value="__newRoom">New room...</option></select>');
 
     if (results) {
       var rooms = {};
