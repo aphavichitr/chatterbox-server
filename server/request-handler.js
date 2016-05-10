@@ -73,7 +73,7 @@ var requestHandler = function(request, response) {
     response.end(JSON.stringify(responseBody));
   };
 
-  if (url === '/classes/messages') {
+  if (url === '/classes/messages' || url === '/classes/messages?order=-createdAt') {
     if (method === 'GET') {
       responses();
     } else {
