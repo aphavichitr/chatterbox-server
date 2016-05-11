@@ -12,7 +12,38 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 
+// These headers will allow Cross-Origin Resource Sharing (CORS).
+// This code allows this server to talk to websites that
+// are on different domains, for instance, your chat client.
+//
+// Your chat client is running from a url like file://your/chat/client/index.html,
+// which is considered a different domain.
+//
+// Another way to get around this restriction is to serve you chat
+// client from this domain by setting up static file serving.
+var defaultCorsHeaders = {
+  'access-control-allow-origin': '*',
+  'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'access-control-allow-headers': 'content-type, accept',
+  'access-control-max-age': 10 // Seconds.
+};
+
+var fs = require('fs');
+var filePath = '';
 var results = [];
+
+var displayWebpage = function(response, filePath, contentType) {
+  fs.readFile(filePath, function(error, content) {
+    if (error) {
+      throw err;
+      //return '404 Not found';
+    } else {
+      response.writeHead(200, contentType);
+      response.write(content);
+      response.end();
+    }
+  });
+};
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -71,16 +102,34 @@ var requestHandler = function(request, response) {
     // node to actually send all the data over to the client.
     response.end(JSON.stringify(responseBody));
   };
-
-  if (url === '/classes/messages' || url === '/classes/messages?order=-createdAt') {
+  var contentType;
+  if (url === '/scripts/app.js') {
+    filePath = process.cwd() + '/client/scripts/app.js';
+    contentType = {'Content-Type': 'text/javascript'};
+    displayWebpage(response, filePath, contentType);
+  } else if (url === '/') {
+    filePath = process.cwd() + '/client/index.html';
+    contentType = {'Content-Type': 'text/html'};
+    displayWebpage(response, filePath, contentType);
+  } else if (url === '/styles/styles.css') {
+    filePath = process.cwd() + '/client/styles/styles.css';
+    contentType = {'Content-Type': 'text/css'};
+    displayWebpage(response, filePath, contentType);
+  } else if (url === '/bower_components/jquery/dist/jquery.js') {
+    filePath = process.cwd() + '/client/bower_components/jquery/dist/jquery.js';
+    contentType = {'Content-Type': 'text/javascript'};
+    displayWebpage(response, filePath, contentType);
+  } else if (url === '/images/spiffygif_46x46.gif') {
+    filePath = process.cwd() + '/client/images/spiffygif_46x46.gif';
+    contentType = {'Content-Type': 'image/gif'};
+    displayWebpage(response, filePath, contentType);
+  } else if (url === '/classes/messages' || url === '/classes/messages?order=-createdAt') {
     if (method === 'OPTIONS') {
       responses();
     } else if (method === 'GET') {
       responses();
     } else {
       statusCode = 201;
-      // if there's a get request, will it go through here?
-      // for post requests, why will on('data') return undefined even if there's data
       request.on('data', function(data) {
         body.push(data);
       });
@@ -95,22 +144,8 @@ var requestHandler = function(request, response) {
   }
 
 
+
 };
 
-// These headers will allow Cross-Origin Resource Sharing (CORS).
-// This code allows this server to talk to websites that
-// are on different domains, for instance, your chat client.
-//
-// Your chat client is running from a url like file://your/chat/client/index.html,
-// which is considered a different domain.
-//
-// Another way to get around this restriction is to serve you chat
-// client from this domain by setting up static file serving.
-var defaultCorsHeaders = {
-  'access-control-allow-origin': '*',
-  'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'access-control-allow-headers': 'content-type, accept',
-  'access-control-max-age': 10 // Seconds.
-};
 
 exports.requestHandler = requestHandler;
