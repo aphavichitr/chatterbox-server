@@ -32,6 +32,23 @@ var fs = require('fs');
 var filePath = '';
 var results = [];
 
+fs.readFile('./data.txt', 'utf-8', function(err, data) {
+  if (err) {
+    throw err;
+  } else {
+    data = data.split('}');
+    data = data.map(function(element) {
+      if (element !== '') {
+        element = JSON.stringify(element.concat('}'));
+        return JSON.parse(JSON.parse(element));
+      }
+    });
+    data.splice(data.length - 1, 1);
+    results = data;
+    return data;
+  }
+});
+
 var displayWebpage = function(response, filePath, contentType) {
   fs.readFile(filePath, function(error, content) {
     if (error) {
@@ -84,7 +101,11 @@ var requestHandler = function(request, response) {
     response.writeHead(statusCode, headers);
 
     if (method === 'POST') {
-      results.push(JSON.parse(body));
+      fs.appendFile('data.txt', body, function(err) {
+        if (err) {
+          throw err;
+        }
+      });
     }
     var responseBody = {
       headers: headers,
@@ -93,6 +114,7 @@ var requestHandler = function(request, response) {
       body: body,
       results: results
     };
+
     // Make sure to always call response.end() - Node may not send
     // anything back to the client until you do. The string you pass to
     // response.end() will be the body of the response - i.e. what shows
